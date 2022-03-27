@@ -1,2 +1,2 @@
-# appliance
+# smarthome
 Another auto battler.
