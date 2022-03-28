@@ -1,28 +1,26 @@
 package smarthome_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/brensch/smarthome"
 )
 
 type DoMoveTestCase struct {
-	TeamsBefore [2]smarthome.Team
-	TeamsAfter  [2]smarthome.Team
+	Appliances []smarthome.Appliance
+	MoveDeltas []smarthome.MoveDelta
 }
 
 var (
 	doMoveTests = []DoMoveTestCase{
 		{
-			TeamsBefore: [2]smarthome.Team{
-				{
-					Appliances: []smarthome.Appliance{
-						&smarthome.Toaster{
-							ApplianceBase: smarthome.ApplianceBase{
-								X: 0,
-								Y: 0,
-							},
-						},
+			Appliances: []smarthome.Appliance{
+
+				&smarthome.Toaster{
+					ApplianceBase: smarthome.ApplianceBase{
+						X: 0,
+						Y: 0,
 					},
 				},
 			},
@@ -31,13 +29,7 @@ var (
 )
 
 func TestDoMove(t *testing.T) {
-
-	smarthome.DoMove(doMoveTests[0].TeamsBefore)
-	for _, team := range doMoveTests[0].TeamsBefore {
-		for _, appliance := range team.Appliances {
-
-			appliance.Attack()
-		}
-	}
+	deltas := smarthome.DoMove(doMoveTests[0].Appliances)
+	fmt.Println(deltas)
 
 }

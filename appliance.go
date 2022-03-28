@@ -1,8 +1,7 @@
 package smarthome
 
-import "fmt"
-
 type ApplianceBase struct {
+	Team     string
 	X        int32
 	Y        int32
 	Health   int32
@@ -17,19 +16,13 @@ type ApplianceBase struct {
 }
 
 type Appliance interface {
-	Ability()
-	Attack()
+	DoMove([]Appliance) MoveDelta
 }
 
 type Toaster struct {
 	ApplianceBase
 }
 
-func (t *Toaster) Attack() {
-	fmt.Println(t.X, t.Y)
-}
-
-func (t *Toaster) Ability() {
-	fmt.Println(t.Pattern)
-
+func (t *Toaster) DoMove(appliances []Appliance) MoveDelta {
+	return MoveDelta{}
 }
