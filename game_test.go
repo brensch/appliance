@@ -39,17 +39,6 @@ var (
 						Health:   3,
 					},
 				},
-				smarthome.Toaster{
-					ApplianceState: smarthome.ApplianceState{
-						GoingUp: true,
-						Location: smarthome.Location{
-							X: 1,
-							Y: 2,
-						},
-						Strength: 1,
-						Health:   3,
-					},
-				},
 				// GoingDown
 				smarthome.Sticky{
 					ApplianceState: smarthome.ApplianceState{
@@ -86,9 +75,10 @@ func TestGameStateGetNextState(t *testing.T) {
 	events := smarthome.CreateEvents(gameStateCreateEventsTests[0].Appliances)
 	nextAppliances := smarthome.GetNextState(gameStateCreateEventsTests[0].Appliances, events)
 
+	smarthome.PrintState(3, 6, nextAppliances, events)
+
 	for _, appliance := range nextAppliances {
 		fmt.Println(appliance.Type(), appliance.State().Location, appliance.State().Health)
-
 	}
 
 	// for i, team := range events {

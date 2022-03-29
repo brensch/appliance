@@ -24,7 +24,7 @@ func (t Toaster) CreateEvents(appliances []Appliance) []Event {
 		X: t.Location.X,
 		Y: targetY,
 	}
-	fmt.Println(locationToAttack)
+	fmt.Println(t.Location, "attack", locationToAttack)
 
 	for _, appliance := range appliances {
 		// if this appliance is not in front of us, ignore it
@@ -53,12 +53,6 @@ func (t Toaster) CreateEvents(appliances []Appliance) []Event {
 		// break
 	}
 
-	// move forward if we didn't find someone to attack and aren't blocked
-	newY := t.Location.Y - 1
-	if t.GoingUp {
-		newY += 2
-	}
-
 	return []Event{
 		RelocationEvent{
 			EventBase: EventBase{
@@ -85,7 +79,7 @@ func (t Toaster) ReceiveEvents(appliances []Appliance, events []Event) (Applianc
 			}
 		case RelocationEvent:
 			if SameLocation(v.EventBase.Target, t.Location) {
-				fmt.Println("toaster received a relocation event")
+				fmt.Printf("toaster %d,%d received a relocation event\n", t.Location.X, t.Location.Y)
 				t.Location = v.NewLocation
 
 			}

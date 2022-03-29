@@ -44,8 +44,10 @@ func CreateEvents(appliances []Appliance) []Event {
 func GetNextState(appliances []Appliance, events []Event) []Appliance {
 	// apply the deltas for each team.
 	// Each team needs the events of the opposite team as their enemy, hence the [1-i]
+
 	iterations := 0
 	for len(events) > 0 {
+		PrintState(3, 6, appliances, events)
 		if iterations > 10 {
 			fmt.Println("got 10 iterations, get good please brend")
 			return appliances
