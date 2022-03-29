@@ -39,6 +39,17 @@ var (
 						Health:   3,
 					},
 				},
+				smarthome.Toaster{
+					ApplianceState: smarthome.ApplianceState{
+						GoingUp: true,
+						Location: smarthome.Location{
+							X: 1,
+							Y: 2,
+						},
+						Strength: 1,
+						Health:   3,
+					},
+				},
 				// GoingDown
 				smarthome.Sticky{
 					ApplianceState: smarthome.ApplianceState{

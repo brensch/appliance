@@ -9,13 +9,15 @@ const (
 
 type EventBase struct {
 	Iteration int8
-	CausedBy  Appliance
-	Targets   Location
+	// CausedBy is an appliance since team is important
+	CausedBy Appliance
+	Target   Location
 }
 
 type Event interface {
 	// json.Marshaler
 	Type() EventType
+	Target() Location
 }
 
 type ModifyHealthEvent struct {
@@ -27,6 +29,10 @@ func (e ModifyHealthEvent) Type() EventType {
 	return EventTypeModifyHealth
 }
 
+func (e ModifyHealthEvent) Target() Location {
+	return e.EventBase.Target
+}
+
 type RelocationEvent struct {
 	EventBase
 	NewLocation Location
@@ -34,4 +40,8 @@ type RelocationEvent struct {
 
 func (e RelocationEvent) Type() EventType {
 	return EventTypeRelocate
+}
+
+func (e RelocationEvent) Target() Location {
+	return e.EventBase.Target
 }

@@ -55,7 +55,7 @@ func GetNextState(appliances []Appliance, events []Event) []Appliance {
 		var nextEvents []Event
 		for _, appliance := range appliances {
 
-			updatedAppliance, followUpEvents := appliance.ReceiveEvents(events)
+			updatedAppliance, followUpEvents := appliance.ReceiveEvents(appliances, events)
 			nextAppliances = append(nextAppliances, updatedAppliance)
 			nextEvents = append(nextEvents, followUpEvents...)
 

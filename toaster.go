@@ -40,10 +40,7 @@ func (t Toaster) CreateEvents(appliances []Appliance) []Event {
 					EventBase: EventBase{
 						Iteration: 0,
 						CausedBy:  t,
-						Targets: Location{
-							X: t.Location.X,
-							Y: targetY,
-						},
+						Target:    appliance.State().Location,
 					},
 					Value: -t.Strength,
 				},
@@ -67,7 +64,7 @@ func (t Toaster) CreateEvents(appliances []Appliance) []Event {
 			EventBase: EventBase{
 				Iteration: 0,
 				CausedBy:  t,
-				Targets:   t.Location,
+				Target:    t.Location,
 			},
 			NewLocation: locationToAttack,
 		},
@@ -76,18 +73,18 @@ func (t Toaster) CreateEvents(appliances []Appliance) []Event {
 	// return moveDeltas
 }
 
-func (t Toaster) ReceiveEvents(events []Event) (Appliance, []Event) {
+func (t Toaster) ReceiveEvents(appliances []Appliance, events []Event) (Appliance, []Event) {
 
 	for _, event := range events {
 
 		switch v := event.(type) {
 		case ModifyHealthEvent:
-			if SameLocation(v.Targets, t.Location) {
+			if SameLocation(v.EventBase.Target, t.Location) {
 				fmt.Println("toaster received a modify health event", v.Value)
 				t.Health += v.Value
 			}
 		case RelocationEvent:
-			if SameLocation(v.Targets, t.Location) {
+			if SameLocation(v.EventBase.Target, t.Location) {
 				fmt.Println("toaster received a relocation event")
 				t.Location = v.NewLocation
 

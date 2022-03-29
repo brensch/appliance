@@ -35,7 +35,7 @@ func (t Sticky) CreateEvents(appliances []Appliance) []Event {
 					EventBase: EventBase{
 						Iteration: 0,
 						CausedBy:  t,
-						Targets: Location{
+						Target: Location{
 							X: t.Location.X,
 							Y: targetY,
 						},
@@ -55,7 +55,7 @@ func (t Sticky) CreateEvents(appliances []Appliance) []Event {
 	return nil
 }
 
-func (t Sticky) ReceiveEvents(events []Event) (Appliance, []Event) {
+func (t Sticky) ReceiveEvents(appliances []Appliance, events []Event) (Appliance, []Event) {
 
 	// Set yourself back where you were
 
@@ -73,18 +73,18 @@ func (t Sticky) ReceiveEvents(events []Event) (Appliance, []Event) {
 				continue
 			}
 
-			fmt.Printf("sticky saw an opponent trying to move from (%d,%d) to (%d,%d)\n", v.EventBase.Targets.X, v.EventBase.Targets.Y, v.NewLocation.X, v.NewLocation.Y)
+			fmt.Printf("sticky saw an opponent trying to move from (%d,%d) to (%d,%d)\n", v.EventBase.Target.X, v.EventBase.Target.Y, v.NewLocation.X, v.NewLocation.Y)
 			newEvents = append(newEvents,
 				RelocationEvent{EventBase: EventBase{
 					Iteration: v.Iteration + 1,
 					CausedBy:  t,
-					Targets:   v.NewLocation,
+					Target:    v.NewLocation,
 				},
 					// use the original target as the new location since that's where they've come from
-					NewLocation: v.Targets,
+					NewLocation: v.EventBase.Target,
 				})
 		case ModifyHealthEvent:
-			if SameLocation(v.Targets, t.Location) {
+			if SameLocation(v.EventBase.Target, t.Location) {
 				fmt.Println("sticky received a modify health event", v.Value)
 				t.Health += v.Value
 			}

@@ -45,11 +45,11 @@ type Appliance interface {
 	// of other appliances.
 	// The friends and enemies inputs are two separate Appliance slices so that you can pass in different arrays
 	// depending on the team of the appliance creating the events.
-	CreateEvents(appliances []Appliance) []Event
+	CreateEvents([]Appliance) []Event
 	// ReceiveEvent is how the appliance responds to events.
 	// The returned appliance object is the next state of the appliance
 	// All appliances receive all events in case they have behaviour based on things happening to
 	// appliances elsewhere on the board.
 	// Receiving events can also trigger more events, for example incoming damage to an ally might trigger a heal event etc
-	ReceiveEvents(events []Event) (Appliance, []Event)
+	ReceiveEvents([]Appliance, []Event) (Appliance, []Event)
 }
