@@ -1,7 +1,5 @@
 package smarthome
 
-import "fmt"
-
 type Sticky struct {
 	ApplianceState
 }
@@ -10,16 +8,18 @@ func (t Sticky) Type() ApplianceType {
 	return "sticky"
 }
 
+func (t Sticky) MoveToStreet(width, height, team int8) Appliance {
+	t.Location = t.Location.MoveToStreet(width, height, team)
+	t.Team = team
+	return t
+}
+
 // Sticky doesn't let anyone on the other team move and attacks in the front row
 func (t Sticky) CreateEvents(appliances []Appliance) []Event {
 
-	targetY := t.Location.Y - 1
-	if t.GoingUp {
-		targetY += 2
-	}
 	locationToAttack := Location{
 		X: t.Location.X,
-		Y: targetY,
+		Y: t.Location.Y + t.Team,
 	}
 
 	for _, appliance := range appliances {
@@ -29,16 +29,12 @@ func (t Sticky) CreateEvents(appliances []Appliance) []Event {
 		}
 
 		// attack if it's the other team in front of us
-		if appliance.State().GoingUp != t.GoingUp {
+		if appliance.State().Team != t.Team {
 			return []Event{
 				ModifyHealthEvent{
 					EventBase: EventBase{
-						Iteration: 0,
-						CausedBy:  t,
-						Target: Location{
-							X: t.Location.X,
-							Y: targetY,
-						},
+						CausedBy: t,
+						Target:   locationToAttack,
 					},
 					Value: -t.Strength,
 				},
@@ -55,7 +51,7 @@ func (t Sticky) CreateEvents(appliances []Appliance) []Event {
 	return nil
 }
 
-func (t Sticky) ReceiveEvents(appliances []Appliance, events []Event) (Appliance, []Event) {
+func (t Sticky) ReceiveEvents(appliances []Appliance, events []Event, turn int8) (Appliance, []Event) {
 
 	// Set yourself back where you were
 
@@ -69,13 +65,13 @@ func (t Sticky) ReceiveEvents(appliances []Appliance, events []Event) (Appliance
 			}
 
 			// ignore allies
-			if v.CausedBy.State().GoingUp == t.GoingUp {
+			if v.CausedBy.State().Team == t.Team {
 				continue
 			}
 
-			fmt.Printf("sticky saw an opponent trying to move from (%d,%d) to (%d,%d)\n", v.EventBase.Target.X, v.EventBase.Target.Y, v.NewLocation.X, v.NewLocation.Y)
 			newEvents = append(newEvents,
 				RelocationEvent{EventBase: EventBase{
+					// increment the iteration so this event does not also get blocked
 					Iteration: v.Iteration + 1,
 					CausedBy:  t,
 					Target:    v.NewLocation,
@@ -85,7 +81,6 @@ func (t Sticky) ReceiveEvents(appliances []Appliance, events []Event) (Appliance
 				})
 		case ModifyHealthEvent:
 			if SameLocation(v.EventBase.Target, t.Location) {
-				fmt.Println("sticky received a modify health event", v.Value)
 				t.Health += v.Value
 			}
 		}

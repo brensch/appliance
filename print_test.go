@@ -7,11 +7,24 @@ import (
 )
 
 func TestPrintState(t *testing.T) {
+	houseStates := [2]smarthome.HouseState{
+		{
+			Health:   3,
+			Strength: 1,
+			Team:     1,
+		},
+		{
+			Health:   3,
+			Strength: 1,
+			Team:     -1,
+		},
+	}
+
 	appliances := []smarthome.Appliance{
 		// GoingUp
 		smarthome.Toaster{
 			ApplianceState: smarthome.ApplianceState{
-				GoingUp: true,
+				Team: 1,
 				Location: smarthome.Location{
 					X: 0,
 					Y: 2,
@@ -23,7 +36,7 @@ func TestPrintState(t *testing.T) {
 		// GoingDown
 		smarthome.Sticky{
 			ApplianceState: smarthome.ApplianceState{
-				GoingUp: false,
+				Team: -1,
 				Location: smarthome.Location{
 					X: 0,
 					Y: 3,
@@ -37,10 +50,8 @@ func TestPrintState(t *testing.T) {
 	events := []smarthome.Event{
 		smarthome.ModifyHealthEvent{
 			EventBase: smarthome.EventBase{
-				Iteration: 0,
 				CausedBy: smarthome.Sticky{
 					ApplianceState: smarthome.ApplianceState{
-						GoingUp: false,
 						Location: smarthome.Location{
 							X: 0,
 							Y: 3,
@@ -58,6 +69,6 @@ func TestPrintState(t *testing.T) {
 		},
 	}
 
-	smarthome.PrintState(3, 6, appliances, events)
+	smarthome.PrintState(3, 6, houseStates, appliances, events)
 
 }

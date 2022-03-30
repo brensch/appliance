@@ -12,19 +12,39 @@ func (t Toaster) Type() ApplianceType {
 	return "toaster"
 }
 
+func (t Toaster) MoveToStreet(width, height, team int8) Appliance {
+	t.Location = t.Location.MoveToStreet(width, height, team)
+	t.Team = team
+	return t
+}
+
 // Toaster attacks if he's in the front row. He attacks straight.
 // If he's not in the front row he attempts to move forward one row.
 func (t Toaster) CreateEvents(appliances []Appliance) []Event {
 
-	targetY := t.Location.Y - 1
-	if t.GoingUp {
-		targetY += 2
-	}
 	locationToAttack := Location{
 		X: t.Location.X,
-		Y: targetY,
+		Y: t.Location.Y + t.Team,
 	}
-	fmt.Println(t.Location, "attack", locationToAttack)
+
+	// if house in striking range, send.
+	if LocationIsHouse(6, t.Team, locationToAttack) {
+		return []Event{
+			ModifyHouseHealthEvent{
+				EventBase: EventBase{
+					// Iteration: 0,
+					CausedBy: t,
+				},
+				Team:  -t.Team,
+				Value: -t.Strength,
+			},
+		}
+	}
+
+	// don't attack the edge of the map or fall off
+	if !LocationValid(3, 6, locationToAttack) {
+		return nil
+	}
 
 	for _, appliance := range appliances {
 		// if this appliance is not in front of us, ignore it
@@ -33,14 +53,13 @@ func (t Toaster) CreateEvents(appliances []Appliance) []Event {
 		}
 
 		// attack if it's the other team in front of us
-		fmt.Println("toaster attacking appliance in front of it")
-		if appliance.State().GoingUp != t.GoingUp {
+		if appliance.State().Team != t.Team {
 			return []Event{
 				ModifyHealthEvent{
 					EventBase: EventBase{
 						Iteration: 0,
 						CausedBy:  t,
-						Target:    appliance.State().Location,
+						Target:    locationToAttack,
 					},
 					Value: -t.Strength,
 				},
@@ -48,38 +67,34 @@ func (t Toaster) CreateEvents(appliances []Appliance) []Event {
 		}
 
 		// do nothing if it's our own team in front of us
+		fmt.Println("own team in front", t.Location, locationToAttack)
 		return nil
-		// TODO: maybe make a relocate event and then tidy up using team tidy function
-		// break
+
 	}
 
 	return []Event{
 		RelocationEvent{
 			EventBase: EventBase{
-				Iteration: 0,
-				CausedBy:  t,
-				Target:    t.Location,
+				// Iteration: 0,
+				CausedBy: t,
+				Target:   t.Location,
 			},
 			NewLocation: locationToAttack,
 		},
 	}
-
-	// return moveDeltas
 }
 
-func (t Toaster) ReceiveEvents(appliances []Appliance, events []Event) (Appliance, []Event) {
+func (t Toaster) ReceiveEvents(appliances []Appliance, events []Event, turn int8) (Appliance, []Event) {
 
 	for _, event := range events {
 
 		switch v := event.(type) {
 		case ModifyHealthEvent:
 			if SameLocation(v.EventBase.Target, t.Location) {
-				fmt.Println("toaster received a modify health event", v.Value)
 				t.Health += v.Value
 			}
 		case RelocationEvent:
 			if SameLocation(v.EventBase.Target, t.Location) {
-				fmt.Printf("toaster %d,%d received a relocation event\n", t.Location.X, t.Location.Y)
 				t.Location = v.NewLocation
 
 			}

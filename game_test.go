@@ -19,7 +19,7 @@ var (
 				// GoingUp
 				smarthome.Toaster{
 					ApplianceState: smarthome.ApplianceState{
-						GoingUp: true,
+						Team: 1,
 						Location: smarthome.Location{
 							X: 0,
 							Y: 2,
@@ -30,7 +30,7 @@ var (
 				},
 				smarthome.Toaster{
 					ApplianceState: smarthome.ApplianceState{
-						GoingUp: true,
+						Team: 1,
 						Location: smarthome.Location{
 							X: 1,
 							Y: 2,
@@ -42,7 +42,7 @@ var (
 				// GoingDown
 				smarthome.Sticky{
 					ApplianceState: smarthome.ApplianceState{
-						GoingUp: false,
+						Team: -1,
 						Location: smarthome.Location{
 							X: 0,
 							Y: 3,
@@ -72,10 +72,22 @@ func TestGameStateCreateEvents(t *testing.T) {
 }
 
 func TestGameStateGetNextState(t *testing.T) {
+	houseStates := [2]smarthome.HouseState{
+		{
+			Health:   3,
+			Strength: 1,
+			Team:     1,
+		},
+		{
+			Health:   3,
+			Strength: 1,
+			Team:     -1,
+		},
+	}
 	events := smarthome.CreateEvents(gameStateCreateEventsTests[0].Appliances)
-	nextAppliances := smarthome.GetNextState(gameStateCreateEventsTests[0].Appliances, events)
+	nextHouses, nextAppliances := smarthome.GetNextState(houseStates, gameStateCreateEventsTests[0].Appliances, events, 0)
 
-	smarthome.PrintState(3, 6, nextAppliances, events)
+	smarthome.PrintState(3, 6, nextHouses, nextAppliances, events)
 
 	for _, appliance := range nextAppliances {
 		fmt.Println(appliance.Type(), appliance.State().Location, appliance.State().Health)
@@ -89,7 +101,83 @@ func TestGameStateGetNextState(t *testing.T) {
 
 }
 
-func TestPlay(t *testing.T) {
-	result := smarthome.Play(gameStateCreateEventsTests[0].Appliances)
+var (
+	houses = [2]smarthome.House{
+		{
+			Appliances: []smarthome.Appliance{
+				// GoingUp
+				smarthome.Toaster{
+					ApplianceState: smarthome.ApplianceState{
+						Location: smarthome.Location{
+							X: 0,
+							Y: 2,
+						},
+						Strength: 1,
+						Health:   3,
+					},
+				},
+				smarthome.Toaster{
+					ApplianceState: smarthome.ApplianceState{
+						Location: smarthome.Location{
+							X: 1,
+							Y: 2,
+						},
+						Strength: 1,
+						Health:   3,
+					},
+				},
+			},
+			State: smarthome.HouseState{
+				Health:   3,
+				Strength: 3,
+			},
+		},
+		{
+			Appliances: []smarthome.Appliance{
+				// GoingUp
+				smarthome.Toaster{
+					ApplianceState: smarthome.ApplianceState{
+						Location: smarthome.Location{
+							X: 0,
+							Y: 2,
+						},
+						Strength: 1,
+						Health:   3,
+					},
+				},
+				smarthome.Sticky{
+					ApplianceState: smarthome.ApplianceState{
+						Location: smarthome.Location{
+							X: 1,
+							Y: 2,
+						},
+						Strength: 1,
+						Health:   3,
+					},
+				},
+			},
+			State: smarthome.HouseState{
+				Health:   3,
+				Strength: 3,
+			},
+		},
+	}
+)
+
+func TestInitGame(t *testing.T) {
+
+	result := smarthome.InitGame(houses)
+	smarthome.PrintState(3, 6, result.HouseStates, result.Appliances, nil)
+}
+
+func TestGameResult(t *testing.T) {
+	game := smarthome.InitGame(houses)
+	result := game.Play()
 	fmt.Println(result)
+}
+
+func TestPlay(t *testing.T) {
+	game := smarthome.InitGame(houses)
+	result := game.Play()
+	fmt.Println("result", result)
 }

@@ -2,28 +2,52 @@ package smarthome
 
 import "fmt"
 
-// type GameState struct {
-// 	Teams [2]Team
-// }
+type Game struct {
+	Turn        uint8
+	Appliances  []Appliance
+	HouseStates [2]HouseState
+}
 
-func Play(appliances []Appliance) int {
-	turns := 0
+func InitGame(houses [2]House) Game {
+
+	var g Game
+	for i := 0; i < 2; i++ {
+		g.HouseStates[i] = houses[i].State
+		g.HouseStates[i].Team = TeamValues[i]
+		// move appliances into the street to fight
+		// ie adjust their location if they are the second team
+		for _, appliance := range houses[i].Appliances {
+			streetAppliance := appliance.MoveToStreet(3, 6, TeamValues[i])
+			g.Appliances = append(g.Appliances, streetAppliance)
+		}
+	}
+	return g
+}
+
+func (g Game) Play() int8 {
+	turn := int8(0)
+	appliances := g.Appliances
+	houses := g.HouseStates
 
 	for {
-		if turns > 10 {
-			fmt.Println("got 10 turns, get good please brend")
-			return -2
+		fmt.Printf("round %d-------------------------------------------------------\n", turn)
+		if turn > 100 {
+			fmt.Println("got 100 turn, get good please brend")
+			return ResultTimeout
 		}
 		turnEvents := CreateEvents(appliances)
-		nextAppliances := GetNextState(appliances, turnEvents)
-		result := gameResult(nextAppliances)
+		nextHouses, nextAppliances := GetNextState(houses, appliances, turnEvents, turn)
 
+		PrintState(3, 6, nextHouses, nextAppliances, nil)
+
+		result := gameResult(nextHouses, nextAppliances)
 		if result != ResultNotFinished {
 			return result
 		}
 
-		turns++
+		turn++
 		appliances = nextAppliances
+		houses = nextHouses
 	}
 }
 
@@ -41,31 +65,38 @@ func CreateEvents(appliances []Appliance) []Event {
 
 }
 
-func GetNextState(appliances []Appliance, events []Event) []Appliance {
+func GetNextState(houses [2]HouseState, appliances []Appliance, events []Event, turn int8) ([2]HouseState, []Appliance) {
 	// apply the deltas for each team.
 	// Each team needs the events of the opposite team as their enemy, hence the [1-i]
 
-	iterations := 0
+	iteration := int8(0)
+	// execute events until there are no new ones generated
 	for len(events) > 0 {
-		PrintState(3, 6, appliances, events)
-		if iterations > 10 {
-			fmt.Println("got 10 iterations, get good please brend")
-			return appliances
+		// fmt.Printf("turn iteration %d\n", iteration)
+		// PrintState(3, 6, houses, appliances, events)
+		if iteration > 100 {
+			fmt.Println("got 100 iterations, get good please brend")
+			return houses, appliances
 		}
-		fmt.Println("state iteration")
+		// receive the damage from the previous events
+		// doing it here to make sure we get the events from the turn
+		var nextHouses [2]HouseState
+		for i, house := range houses {
+			nextHouses[i] = house.ReceiveDamage(events)
+		}
+
 		var nextAppliances []Appliance
 		var nextEvents []Event
 		for _, appliance := range appliances {
-
-			updatedAppliance, followUpEvents := appliance.ReceiveEvents(appliances, events)
+			updatedAppliance, followUpEvents := appliance.ReceiveEvents(appliances, events, turn)
 			nextAppliances = append(nextAppliances, updatedAppliance)
 			nextEvents = append(nextEvents, followUpEvents...)
-
 		}
 
 		events = nextEvents
+		houses = nextHouses
 		appliances = nextAppliances
-		iterations++
+		iteration++
 
 	}
 
@@ -81,38 +112,46 @@ func GetNextState(appliances []Appliance, events []Event) []Appliance {
 	}
 
 	// keeping as a value not a pointer for stack efficiency
-	return aliveAppliances
+	return houses, aliveAppliances
 
 }
 
 const (
-	ResultNotFinished = iota
-	ResultDraw
-	ResultGoingUp
-	ResultGoingDown
+	ResultGoingDown   = int8(-1)
+	ResultNotFinished = int8(0)
+	ResultGoingUp     = int8(1)
+	ResultDraw        = int8(2)
+	ResultTimeout     = int8(3)
 )
 
-func gameResult(appliances []Appliance) int {
+func gameResult(houses [2]HouseState, appliances []Appliance) int8 {
 
 	if len(appliances) == 0 {
 		return ResultDraw
 	}
 
-	// Count the survivors from each type
-	var goingUp, goingDown int8
-	for _, appliance := range appliances {
-		if appliance.State().GoingUp {
-			goingUp++
-			continue
-		}
-		goingDown++
+	if houses[0].Health <= 0 && houses[1].Health <= 0 {
+		return ResultDraw
 	}
 
-	if goingUp == 0 {
+	for _, house := range houses {
+		if houses[0].Health <= 0 {
+			// return the opposite team to the one whos house has 0 health
+			return -house.Team
+		}
+	}
+
+	// Count the survivors from each type
+	var score int8
+	for _, appliance := range appliances {
+		score += appliance.State().Team
+	}
+
+	if score < 0 {
 		return ResultGoingDown
 	}
 
-	if goingDown == 0 {
+	if score > 0 {
 		return ResultGoingUp
 	}
 
