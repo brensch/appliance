@@ -56,50 +56,50 @@ var (
 	}
 )
 
-func TestGameStateCreateEvents(t *testing.T) {
-	events := smarthome.CreateEvents(gameStateCreateEventsTests[0].Appliances)
+// func TestGameStateCreateEvents(t *testing.T) {
+// 	events := smarthome.CreateEvents(gameStateCreateEventsTests[0].Appliances)
 
-	for _, event := range events {
-		fmt.Println(event.Type())
-	}
+// 	for _, event := range events {
+// 		fmt.Println(event.Type())
+// 	}
 
-	// for i, team := range events {
-	// 	for _, event := range team {
-	// 		fmt.Println(i, event.Type())
-	// 	}
-	// }
+// 	// for i, team := range events {
+// 	// 	for _, event := range team {
+// 	// 		fmt.Println(i, event.Type())
+// 	// 	}
+// 	// }
 
-}
+// }
 
-func TestGameStateGetNextState(t *testing.T) {
-	houseStates := [2]smarthome.HouseState{
-		{
-			Health:   3,
-			Strength: 1,
-			Team:     1,
-		},
-		{
-			Health:   3,
-			Strength: 1,
-			Team:     -1,
-		},
-	}
-	events := smarthome.CreateEvents(gameStateCreateEventsTests[0].Appliances)
-	nextHouses, nextAppliances := smarthome.GetNextState(houseStates, gameStateCreateEventsTests[0].Appliances, events, 0)
+// func TestLoopUntilNoEventsRemaining(t *testing.T) {
+// 	houseStates := [2]smarthome.HouseState{
+// 		{
+// 			Health:   3,
+// 			Strength: 1,
+// 			Team:     1,
+// 		},
+// 		{
+// 			Health:   3,
+// 			Strength: 1,
+// 			Team:     -1,
+// 		},
+// 	}
+// 	events := smarthome.CreateEvents(gameStateCreateEventsTests[0].Appliances)
+// 	nextHouses, nextAppliances := smarthome.GetNextState(houseStates, gameStateCreateEventsTests[0].Appliances, events, 0)
 
-	smarthome.PrintState(3, 6, nextHouses, nextAppliances, events)
+// 	smarthome.PrintState(3, 6, nextHouses, nextAppliances, events)
 
-	for _, appliance := range nextAppliances {
-		fmt.Println(appliance.Type(), appliance.State().Location, appliance.State().Health)
-	}
+// 	for _, appliance := range nextAppliances {
+// 		fmt.Println(appliance.Type(), appliance.State().Location, appliance.State().Health)
+// 	}
 
-	// for i, team := range events {
-	// 	for _, event := range team {
-	// 		fmt.Println(i, event.Type())
-	// 	}
-	// }
+// 	// for i, team := range events {
+// 	// 	for _, event := range team {
+// 	// 		fmt.Println(i, event.Type())
+// 	// 	}
+// 	// }
 
-}
+// }
 
 var (
 	houses = [2]smarthome.House{
@@ -166,18 +166,34 @@ var (
 
 func TestInitGame(t *testing.T) {
 
-	result := smarthome.InitGame(houses)
-	smarthome.PrintState(3, 6, result.HouseStates, result.Appliances, nil)
+	result := smarthome.GetFirstState(houses)
+	smarthome.PrintState(3, 6, result)
 }
 
 func TestGameResult(t *testing.T) {
-	game := smarthome.InitGame(houses)
-	result := game.Play()
+	startingState := smarthome.GetFirstState(houses)
+	states, result := smarthome.PlayGame(startingState)
+	fmt.Println("result", result)
+	fmt.Println(len(states), "this many")
+	for _, state := range states {
+		smarthome.PrintState(3, 6, state)
+	}
+	// fmt.Println(states)
 	fmt.Println(result)
 }
 
-func TestPlay(t *testing.T) {
-	game := smarthome.InitGame(houses)
-	result := game.Play()
-	fmt.Println("result", result)
+func BenchmarkPlay(b *testing.B) {
+	startingState := smarthome.GetFirstState(houses)
+	for i := 0; i < b.N; i++ {
+		smarthome.PlayGame(startingState)
+	}
+}
+
+func TestDoTurn(t *testing.T) {
+	startingState := smarthome.GetFirstState(houses)
+	states := smarthome.DoTurn(startingState, 0)
+	fmt.Println(len(states))
+	for _, state := range states {
+		smarthome.PrintState(3, 6, state)
+	}
 }

@@ -70,15 +70,16 @@ type Appliance interface {
 
 	MoveToStreet(width, height, team int8) Appliance
 
-	// CreateEvents performs all the logic based on an appliances current position and the positions
-	// of other appliances.
-	// The friends and enemies inputs are two separate Appliance slices so that you can pass in different arrays
-	// depending on the team of the appliance creating the events.
-	CreateEvents(appliances []Appliance) []Event
+	// // CreateEvents performs all the logic based on an appliances current position and the positions
+	// // of other appliances.
+	// // The friends and enemies inputs are two separate Appliance slices so that you can pass in different arrays
+	// // depending on the team of the appliance creating the events.
+	// CreateEvents(appliances []Appliance) []Event
+
 	// ReceiveEvent is how the appliance responds to events.
 	// The returned appliance object is the next state of the appliance
 	// All appliances receive all events in case they have behaviour based on things happening to
 	// appliances elsewhere on the board.
 	// Receiving events can also trigger more events, for example incoming damage to an ally might trigger a heal event etc
-	ReceiveEvents(appliances []Appliance, events []Event, turn int8) (Appliance, []Event)
+	ReceiveEvents(appliances []Appliance, events []Event, turn uint8) (Appliance, []Event)
 }

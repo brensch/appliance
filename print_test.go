@@ -68,7 +68,12 @@ func TestPrintState(t *testing.T) {
 			Value: -1,
 		},
 	}
+	state := smarthome.State{
+		HouseStates: houseStates,
+		Appliances:  appliances,
+		Events:      events,
+	}
 
-	smarthome.PrintState(3, 6, houseStates, appliances, events)
+	smarthome.PrintState(3, 6, state)
 
 }

@@ -14,49 +14,9 @@ func (t Sticky) MoveToStreet(width, height, team int8) Appliance {
 	return t
 }
 
-// Sticky doesn't let anyone on the other team move and attacks in the front row
-func (t Sticky) CreateEvents(appliances []Appliance) []Event {
-
-	locationToAttack := Location{
-		X: t.Location.X,
-		Y: t.Location.Y + t.Team,
-	}
-
-	for _, appliance := range appliances {
-		// if this appliance is not in front of us, ignore it
-		if !SameLocation(locationToAttack, appliance.State().Location) {
-			continue
-		}
-
-		// attack if it's the other team in front of us
-		if appliance.State().Team != t.Team {
-			return []Event{
-				ModifyHealthEvent{
-					EventBase: EventBase{
-						CausedBy: t,
-						Target:   locationToAttack,
-					},
-					Value: -t.Strength,
-				},
-			}
-		}
-
-		// do nothing if it's our own team in front of us
-		return nil
-		// TODO: maybe make a relocate event and then tidy up using team tidy function
-		// break
-	}
-
-	// do nothing if there's no-one in front of us
-	return nil
-}
-
-func (t Sticky) ReceiveEvents(appliances []Appliance, events []Event, turn int8) (Appliance, []Event) {
-
-	// Set yourself back where you were
+func (t Sticky) ReceiveEvents(appliances []Appliance, events []Event, turn uint8) (Appliance, []Event) {
 
 	var newEvents []Event
-
 	for _, event := range events {
 		switch v := event.(type) {
 		case RelocationEvent:
@@ -82,6 +42,21 @@ func (t Sticky) ReceiveEvents(appliances []Appliance, events []Event, turn int8)
 		case ModifyHealthEvent:
 			if SameLocation(v.EventBase.Target, t.Location) {
 				t.Health += v.Value
+			}
+
+		case TurnStartEvent:
+			if SameLocation(v.EventBase.Target, t.Location) {
+				newEvents = append(newEvents, StandAndAttack(t, appliances)...)
+			}
+		}
+
+		// if we're dead, return a nil appliance and emit a death event
+		if t.Health <= 0 {
+			return nil, []Event{
+				ApplianceDeathEvent{
+					EventBase: event.Base(),
+					Appliance: t,
+				},
 			}
 		}
 

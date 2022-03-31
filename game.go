@@ -2,117 +2,153 @@ package smarthome
 
 import "fmt"
 
-type Game struct {
-	Turn        uint8
+// type Game struct {
+// 	Appliances  []Appliance
+// 	HouseStates [2]HouseState
+// }
+
+type State struct {
 	Appliances  []Appliance
 	HouseStates [2]HouseState
+	Events      []Event
 }
 
-func InitGame(houses [2]House) Game {
+func GetFirstState(houses [2]House) State {
 
-	var g Game
+	var s State
 	for i := 0; i < 2; i++ {
-		g.HouseStates[i] = houses[i].State
-		g.HouseStates[i].Team = TeamValues[i]
+		s.HouseStates[i] = houses[i].State
+		s.HouseStates[i].Team = TeamValues[i]
 		// move appliances into the street to fight
 		// ie adjust their location if they are the second team
 		for _, appliance := range houses[i].Appliances {
 			streetAppliance := appliance.MoveToStreet(3, 6, TeamValues[i])
-			g.Appliances = append(g.Appliances, streetAppliance)
+			s.Appliances = append(s.Appliances, streetAppliance)
 		}
 	}
-	return g
+	return s
 }
 
-func (g Game) Play() int8 {
-	turn := int8(0)
-	appliances := g.Appliances
-	houses := g.HouseStates
+func PlayGame(startingState State) ([]State, int8) {
+	turn := uint8(0)
+
+	states := []State{startingState}
+	// PrintState(3, 6, houses, appliances, nil)
 
 	for {
-		fmt.Printf("round %d-------------------------------------------------------\n", turn)
-		if turn > 100 {
-			fmt.Println("got 100 turn, get good please brend")
-			return ResultTimeout
+		if turn > 20 {
+			fmt.Println("got to turn 20, get good please brend")
+			return states, ResultTimeout
 		}
-		turnEvents := CreateEvents(appliances)
-		nextHouses, nextAppliances := GetNextState(houses, appliances, turnEvents, turn)
 
-		PrintState(3, 6, nextHouses, nextAppliances, nil)
+		states = append(states, DoTurn(states[len(states)-1], turn)...)
 
-		result := gameResult(nextHouses, nextAppliances)
+		result := gameResult(states[len(states)-1])
 		if result != ResultNotFinished {
-			return result
+			return states, result
 		}
 
 		turn++
-		appliances = nextAppliances
-		houses = nextHouses
 	}
 }
 
-func CreateEvents(appliances []Appliance) []Event {
+func TurnStartEvents(appliances []Appliance, turnNumber uint8) []Event {
 
 	var allEvents []Event
 	for _, appliance := range appliances {
-		events := appliance.CreateEvents(appliances)
-		// The index in allEvents that is the same as you will be your friends.
-		allEvents = append(allEvents, events...)
-		// The opposite index will be your enemies.
+		event := TurnStartEvent{
+			EventBase: EventBase{
+				Target: appliance.State().Location,
+			},
+			Turn: turnNumber,
+		}
+		allEvents = append(allEvents, event)
 	}
 
 	return allEvents
 
 }
 
-func GetNextState(houses [2]HouseState, appliances []Appliance, events []Event, turn int8) ([2]HouseState, []Appliance) {
-	// apply the deltas for each team.
-	// Each team needs the events of the opposite team as their enemy, hence the [1-i]
+func TurnEndEvents(appliances []Appliance, turnNumber uint8) []Event {
 
-	iteration := int8(0)
+	var allEvents []Event
+	for _, appliance := range appliances {
+		event := TurnEndEvent{
+			EventBase: EventBase{
+				Target: appliance.State().Location,
+			},
+			Turn: turnNumber,
+		}
+		allEvents = append(allEvents, event)
+	}
+
+	return allEvents
+
+}
+
+func LoopUntilNoEventsRemaining(startingState State, turnNumber uint8) []State {
+	var states []State
+	prevState := startingState
+	// states = append(states, prevState)
+	loop := int8(0)
+
 	// execute events until there are no new ones generated
-	for len(events) > 0 {
-		// fmt.Printf("turn iteration %d\n", iteration)
-		// PrintState(3, 6, houses, appliances, events)
-		if iteration > 100 {
+	for len(prevState.Events) > 0 {
+		var nextState State
+
+		if loop > 100 {
 			fmt.Println("got 100 iterations, get good please brend")
-			return houses, appliances
+			return states
 		}
 		// receive the damage from the previous events
 		// doing it here to make sure we get the events from the turn
-		var nextHouses [2]HouseState
-		for i, house := range houses {
-			nextHouses[i] = house.ReceiveDamage(events)
+		for i, house := range prevState.HouseStates {
+			nextState.HouseStates[i] = house.ReceiveDamage(prevState.Events)
 		}
 
-		var nextAppliances []Appliance
-		var nextEvents []Event
-		for _, appliance := range appliances {
-			updatedAppliance, followUpEvents := appliance.ReceiveEvents(appliances, events, turn)
-			nextAppliances = append(nextAppliances, updatedAppliance)
-			nextEvents = append(nextEvents, followUpEvents...)
+		// send each appliance all the previous events and see how they react
+		for _, appliance := range prevState.Appliances {
+			updatedAppliance, followUpEvents := appliance.ReceiveEvents(prevState.Appliances, prevState.Events, turnNumber)
+			nextState.Events = append(nextState.Events, followUpEvents...)
+			if updatedAppliance != nil {
+				nextState.Appliances = append(nextState.Appliances, updatedAppliance)
+			}
+
 		}
 
-		events = nextEvents
-		houses = nextHouses
-		appliances = nextAppliances
-		iteration++
+		states = append(states, nextState)
+		prevState = nextState
+		loop++
 
 	}
 
-	// once there are no event left, remove all dead appliances.
-	// this ensures that things like heal and whatnot works.
-	var aliveAppliances []Appliance
-	for _, appliance := range appliances {
-		if appliance.State().Health < 0 {
-			// TODO: make death event and iterate again
-			continue
-		}
-		aliveAppliances = append(aliveAppliances, appliance)
-	}
+	return states
+}
 
-	// keeping as a value not a pointer for stack efficiency
-	return houses, aliveAppliances
+func DoTurn(startingState State, turnNumber uint8) []State {
+	// apply the deltas for each team.
+	// Each team needs the events of the opposite team as their enemy, hence the [1-i]
+
+	// generate all of the start of turn events
+	startingStatePlusEvents := State{
+		Events:      TurnStartEvents(startingState.Appliances, turnNumber),
+		Appliances:  startingState.Appliances,
+		HouseStates: startingState.HouseStates,
+	}
+	allStates := []State{startingStatePlusEvents}
+
+	allStates = append(allStates, LoopUntilNoEventsRemaining(startingStatePlusEvents, turnNumber)...)
+
+	// once all resultant events have finished, send the end of turn event and get all resultant states
+	endingStatePlusEvents := State{
+		Events:      TurnEndEvents(allStates[len(allStates)-1].Appliances, turnNumber),
+		Appliances:  allStates[len(allStates)-1].Appliances,
+		HouseStates: allStates[len(allStates)-1].HouseStates,
+	}
+	allStates = append(allStates, endingStatePlusEvents)
+	allStates = append(allStates, LoopUntilNoEventsRemaining(allStates[len(allStates)-1], turnNumber)...)
+
+	return allStates
 
 }
 
@@ -124,18 +160,18 @@ const (
 	ResultTimeout     = int8(3)
 )
 
-func gameResult(houses [2]HouseState, appliances []Appliance) int8 {
+func gameResult(state State) int8 {
 
-	if len(appliances) == 0 {
+	if len(state.Appliances) == 0 {
 		return ResultDraw
 	}
 
-	if houses[0].Health <= 0 && houses[1].Health <= 0 {
+	if state.HouseStates[0].Health <= 0 && state.HouseStates[1].Health <= 0 {
 		return ResultDraw
 	}
 
-	for _, house := range houses {
-		if houses[0].Health <= 0 {
+	for _, house := range state.HouseStates {
+		if state.HouseStates[0].Health <= 0 {
 			// return the opposite team to the one whos house has 0 health
 			return -house.Team
 		}
@@ -143,7 +179,7 @@ func gameResult(houses [2]HouseState, appliances []Appliance) int8 {
 
 	// Count the survivors from each type
 	var score int8
-	for _, appliance := range appliances {
+	for _, appliance := range state.Appliances {
 		score += appliance.State().Team
 	}
 

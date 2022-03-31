@@ -6,9 +6,12 @@ const (
 	EventTypeModifyHealth      = "modify_health"
 	EventTypeModifyHouseHealth = "modify_house_health"
 	EventTypeRelocate          = "relocate"
-	EventTypeCreateAppliance   = "create_appliance"
+	EventTypeApplianceBirth    = "appliance_birth"
+	EventTypeApplianceDeath    = "appliance_death"
 	EventTypeStartGame         = "start_game"
 	EventTypeEndGame           = "end_game"
+	EventTurnStart             = "turn_start"
+	EventTurnEnd               = "turn_end"
 )
 
 type EventBase struct {
@@ -27,7 +30,33 @@ type EventBase struct {
 type Event interface {
 	// json.Marshaler
 	Type() EventType
-	Target() Location
+	Base() EventBase
+}
+
+type TurnStartEvent struct {
+	EventBase
+	Turn uint8
+}
+
+func (e TurnStartEvent) Type() EventType {
+	return EventTurnStart
+}
+
+func (e TurnStartEvent) Base() EventBase {
+	return e.EventBase
+}
+
+type TurnEndEvent struct {
+	EventBase
+	Turn uint8
+}
+
+func (e TurnEndEvent) Type() EventType {
+	return EventTurnEnd
+}
+
+func (e TurnEndEvent) Base() EventBase {
+	return e.EventBase
 }
 
 type ModifyHealthEvent struct {
@@ -39,8 +68,8 @@ func (e ModifyHealthEvent) Type() EventType {
 	return EventTypeModifyHealth
 }
 
-func (e ModifyHealthEvent) Target() Location {
-	return e.EventBase.Target
+func (e ModifyHealthEvent) Base() EventBase {
+	return e.EventBase
 }
 
 type RelocationEvent struct {
@@ -52,21 +81,34 @@ func (e RelocationEvent) Type() EventType {
 	return EventTypeRelocate
 }
 
-func (e RelocationEvent) Target() Location {
-	return e.EventBase.Target
+func (e RelocationEvent) Base() EventBase {
+	return e.EventBase
 }
 
-type CreateApplianceEvent struct {
+type ApplianceBirthEvent struct {
 	EventBase
 	Appliance Appliance
 }
 
-func (e CreateApplianceEvent) Type() EventType {
-	return EventTypeCreateAppliance
+func (e ApplianceBirthEvent) Type() EventType {
+	return EventTypeApplianceBirth
 }
 
-func (e CreateApplianceEvent) Target() Location {
-	return e.EventBase.Target
+func (e ApplianceBirthEvent) Base() EventBase {
+	return e.EventBase
+}
+
+type ApplianceDeathEvent struct {
+	EventBase
+	Appliance Appliance
+}
+
+func (e ApplianceDeathEvent) Type() EventType {
+	return EventTypeApplianceDeath
+}
+
+func (e ApplianceDeathEvent) Base() EventBase {
+	return e.EventBase
 }
 
 type StartGameEvent struct {
@@ -77,8 +119,8 @@ func (e StartGameEvent) Type() EventType {
 	return EventTypeStartGame
 }
 
-func (e StartGameEvent) Target() Location {
-	return e.EventBase.Target
+func (e StartGameEvent) Base() EventBase {
+	return e.EventBase
 }
 
 type EndGameEvent struct {
@@ -89,8 +131,8 @@ func (e EndGameEvent) Type() EventType {
 	return EventTypeEndGame
 }
 
-func (e EndGameEvent) Target() Location {
-	return e.EventBase.Target
+func (e EndGameEvent) Base() EventBase {
+	return e.EventBase
 }
 
 type ModifyHouseHealthEvent struct {
@@ -105,6 +147,6 @@ func (e ModifyHouseHealthEvent) Type() EventType {
 
 // This kind of breaks the pattern since houses don't have a location per se.
 // Team will be all any event response requires.
-func (e ModifyHouseHealthEvent) Target() Location {
-	return Location{}
+func (e ModifyHouseHealthEvent) Base() EventBase {
+	return e.EventBase
 }

@@ -14,17 +14,17 @@ const (
 	SquareHeightLines = 7
 )
 
-func PrintState(width, height int8, houses [2]HouseState, appliances []Appliance, events []Event) {
+func PrintState(width, height int8, state State) {
 
 	// fmt.Printf("%+v", appliances)
 	board := make([]GameSquare, width*height)
 
-	for _, appliance := range appliances {
+	for _, appliance := range state.Appliances {
 		board[GetIndex(width, appliance.State().Location.X, appliance.State().Location.Y)].Appliance = appliance
 	}
 
-	for _, event := range events {
-		board[GetIndex(width, event.Target().X, event.Target().Y)].Events = append(board[GetIndex(width, event.Target().X, event.Target().Y)].Events, event)
+	for _, event := range state.Events {
+		board[GetIndex(width, event.Base().Target.X, event.Base().Target.Y)].Events = append(board[GetIndex(width, event.Base().Target.X, event.Base().Target.Y)].Events, event)
 	}
 
 	canvas := make([][]string, width)
@@ -41,9 +41,9 @@ func PrintState(width, height int8, houses [2]HouseState, appliances []Appliance
 
 	// when printed, positive in y axis goes down
 	// teamindex 0 == team 1, ie y+ => going down. their house therefore is at the top.
-	fmt.Printf("---------------  house t:%d h:%d  ---------------\n", houses[1].Team, houses[1].Health)
+	fmt.Printf("---------------  house t:%d h:%d  ---------------\n", state.HouseStates[1].Team, state.HouseStates[1].Health)
 	PrintCanvas(canvas)
-	fmt.Printf("---------------  house t:%d h:%d  ---------------\n", houses[0].Team, houses[0].Health)
+	fmt.Printf("---------------  house t:%d h:%d  ---------------\n", state.HouseStates[0].Team, state.HouseStates[0].Health)
 
 }
 
@@ -62,11 +62,22 @@ func (g GameSquare) Print(x, y int8, canvas [][]string) {
 
 	// eventBuf := bytes.NewBuffer(nil)
 	for i, event := range g.Events {
+		if i > SquareHeightLines-3 {
+			fmt.Println("got too many events at once", len(g.Events))
+			break
+		}
 		switch v := event.(type) {
 		case ModifyHealthEvent:
 			canvas[x][yBase+3+int8(i)] = fmt.Sprintf("(%d,%d)[h%+d]", v.CausedBy.State().Location.X, v.CausedBy.State().Location.Y, v.Value)
 		case RelocationEvent:
 			canvas[x][yBase+3+int8(i)] = fmt.Sprintf("(%d,%d)[r(%d,%d)]", v.CausedBy.State().Location.X, v.CausedBy.State().Location.Y, v.NewLocation.X, v.NewLocation.Y)
+		case ApplianceDeathEvent:
+			canvas[x][yBase+3+int8(i)] = fmt.Sprintf("(%d,%d)ded", v.CausedBy.State().Location.X, v.CausedBy.State().Location.Y)
+		case TurnStartEvent:
+			canvas[x][yBase+3+int8(i)] = fmt.Sprintf("start turn %d", v.Turn)
+		case TurnEndEvent:
+			canvas[x][yBase+3+int8(i)] = fmt.Sprintf("end turn %d", v.Turn)
+
 		}
 	}
 
