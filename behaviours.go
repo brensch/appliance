@@ -7,23 +7,36 @@ func PushOrAttack(appliance Appliance, appliances []Appliance) []Event {
 		Y: appliance.State().Location.Y + appliance.State().Team,
 	}
 
-	// if house in striking range, send.
-	if LocationIsHouse(6, appliance.State().Team, locationToAttack) {
+	// // if house in striking range, send.
+	// if LocationIsHouse(6, appliance.State().Team, locationToAttack) {
+	// 	return []Event{
+	// 		ModifyHouseHealthEvent{
+	// 			EventBase: EventBase{
+	// 				// Iteration: 0,
+	// 				CausedBy: appliance,
+	// 			},
+	// 			Team:  -appliance.State().Team,
+	// 			Value: -appliance.State().Strength,
+	// 		},
+	// 	}
+	// }
+
+	// // don't attack the edge of the map or fall off
+	// if !LocationValid(3, 6, locationToAttack) {
+	// 	return nil
+	// }
+	// if we're attacking a house, send it
+	if locationToAttack.Y < 0 || locationToAttack.Y > 5 {
 		return []Event{
-			ModifyHouseHealthEvent{
+			ModifyHealthEvent{
 				EventBase: EventBase{
-					// Iteration: 0,
-					CausedBy: appliance,
+					Iteration: 0,
+					CausedBy:  appliance,
+					Target:    locationToAttack,
 				},
-				Team:  -appliance.State().Team,
 				Value: -appliance.State().Strength,
 			},
 		}
-	}
-
-	// don't attack the edge of the map or fall off
-	if !LocationValid(3, 6, locationToAttack) {
-		return nil
 	}
 
 	var targetAppliance Appliance

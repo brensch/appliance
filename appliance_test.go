@@ -64,7 +64,7 @@ func TestMoveToStreet(t *testing.T) {
 
 func TestInterfaces(t *testing.T) {
 	toaster := smarthome.Toaster{
-		ApplianceState: smarthome.ApplianceState{
+		ObjectState: smarthome.ObjectState{
 			Team: 1,
 			Location: smarthome.Location{
 				X: 0,
@@ -75,7 +75,7 @@ func TestInterfaces(t *testing.T) {
 		},
 	}
 	sticky := smarthome.Sticky{
-		ApplianceState: smarthome.ApplianceState{
+		ObjectState: smarthome.ObjectState{
 			Location: smarthome.Location{
 				X: 1,
 				Y: 2,

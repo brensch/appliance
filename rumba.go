@@ -3,10 +3,10 @@ package smarthome
 // want him to path towards home
 // currently just a copy of toaster
 type Rumba struct {
-	ApplianceState
+	ObjectState
 }
 
-func (t Rumba) Type() ApplianceType {
+func (t Rumba) Type() ObjectType {
 	return "rumba"
 }
 
@@ -16,7 +16,7 @@ func (t Rumba) MoveToStreet(width, height, team int8) Appliance {
 	return t
 }
 
-func (t Rumba) ReceiveEvents(appliances []Appliance, events []Event, turn uint8) (Appliance, []Event) {
+func (t Rumba) ReceiveEvents(appliances []Appliance, events []Event, turn uint8) ([]Appliance, []Event) {
 
 	var newEvents []Event
 	for _, event := range events {
@@ -47,5 +47,5 @@ func (t Rumba) ReceiveEvents(appliances []Appliance, events []Event, turn uint8)
 		}
 	}
 
-	return t, newEvents
+	return []Appliance{t}, newEvents
 }

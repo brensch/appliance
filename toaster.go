@@ -1,12 +1,12 @@
 package smarthome
 
 type Toaster struct {
-	ApplianceState
+	ObjectState
 	// The direction that Ability operates
 	// Pattern [8]bool
 }
 
-func (t Toaster) Type() ApplianceType {
+func (t Toaster) Type() ObjectType {
 	return "toaster"
 }
 
@@ -16,7 +16,7 @@ func (t Toaster) MoveToStreet(width, height, team int8) Appliance {
 	return t
 }
 
-func (t Toaster) ReceiveEvents(appliances []Appliance, events []Event, turn uint8) (Appliance, []Event) {
+func (t Toaster) ReceiveEvents(appliances []Appliance, events []Event, turn uint8) ([]Appliance, []Event) {
 
 	var newEvents []Event
 	for _, event := range events {
@@ -47,5 +47,5 @@ func (t Toaster) ReceiveEvents(appliances []Appliance, events []Event, turn uint
 		}
 	}
 
-	return t, newEvents
+	return []Appliance{t}, newEvents
 }

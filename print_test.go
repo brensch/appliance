@@ -7,23 +7,37 @@ import (
 )
 
 func TestPrintState(t *testing.T) {
-	houseStates := [2]smarthome.HouseState{
-		{
-			Health:   3,
-			Strength: 1,
-			Team:     1,
-		},
-		{
-			Health:   3,
-			Strength: 1,
-			Team:     -1,
-		},
-	}
+	// houseStates := [2]smarthome.HouseState{
+	// 	{
+	// 		Health:   3,
+	// 		Strength: 1,
+	// 		Team:     1,
+	// 	},
+	// 	{
+	// 		Health:   3,
+	// 		Strength: 1,
+	// 		Team:     -1,
+	// 	},
+	// }
 
 	appliances := []smarthome.Appliance{
+		smarthome.HouseState{
+			ObjectState: smarthome.ObjectState{
+				Team:     1,
+				Health:   3,
+				Strength: 3,
+			},
+		},
+		smarthome.HouseState{
+			ObjectState: smarthome.ObjectState{
+				Team:     -1,
+				Health:   3,
+				Strength: 3,
+			},
+		},
 		// GoingUp
 		smarthome.Toaster{
-			ApplianceState: smarthome.ApplianceState{
+			ObjectState: smarthome.ObjectState{
 				Team: 1,
 				Location: smarthome.Location{
 					X: 0,
@@ -35,7 +49,7 @@ func TestPrintState(t *testing.T) {
 		},
 		// GoingDown
 		smarthome.Sticky{
-			ApplianceState: smarthome.ApplianceState{
+			ObjectState: smarthome.ObjectState{
 				Team: -1,
 				Location: smarthome.Location{
 					X: 0,
@@ -51,7 +65,7 @@ func TestPrintState(t *testing.T) {
 		smarthome.ModifyHealthEvent{
 			EventBase: smarthome.EventBase{
 				CausedBy: smarthome.Sticky{
-					ApplianceState: smarthome.ApplianceState{
+					ObjectState: smarthome.ObjectState{
 						Location: smarthome.Location{
 							X: 0,
 							Y: 3,
@@ -69,9 +83,9 @@ func TestPrintState(t *testing.T) {
 		},
 	}
 	state := smarthome.State{
-		HouseStates: houseStates,
-		Appliances:  appliances,
-		Events:      events,
+		// HouseStates: houseStates,
+		Appliances: appliances,
+		Events:     events,
 	}
 
 	smarthome.PrintState(3, 6, state)

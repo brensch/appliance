@@ -5,29 +5,30 @@ package smarthome
 // 0,1 1,1 2,1
 // 0,0 1,0 2,0
 
-type ApplianceType string
+type ObjectType string
 
-type Appliance2 struct {
-	Type     ApplianceType
+// type Appliance2 struct {
+// 	Type     ApplianceType
+// 	Location Location
+
+// 	// -1 = going down
+// 	// 0 = not set (default when viewing your own team)
+// 	// 1 = going up
+// 	Team int8
+
+// 	Health   int8
+// 	Strength int8
+
+// 	// TODO
+// 	Repair int8
+// 	Model  int8
+
+// 	// EventReceivers []EventReceiver
+// }
+
+type ObjectState struct {
 	Location Location
-
-	// -1 = going down
-	// 0 = not set (default when viewing your own team)
-	// 1 = going up
-	Team int8
-
-	Health   int8
-	Strength int8
-
-	// TODO
-	Repair int8
-	Model  int8
-
-	// EventReceivers []EventReceiver
-}
-
-type ApplianceState struct {
-	Location Location
+	Upgrade  Upgrade
 
 	// -1 = going down
 	// 0 = not set (default when viewing your own team)
@@ -72,7 +73,8 @@ func (l Location) MoveToStreet(width, height, team int8) Location {
 	}
 }
 
-func (s ApplianceState) State() ApplianceState {
+// this make any object that contains an object state implement the state method
+func (s ObjectState) State() ObjectState {
 	return s
 }
 
@@ -82,11 +84,11 @@ func (s ApplianceState) State() ApplianceState {
 // )
 
 type Appliance interface {
-	State() ApplianceState
-	Type() ApplianceType
+	State() ObjectState
+	Type() ObjectType
 
-	// this allows the appliance to be converted to its street location (ie in the two player grid)
-
+	// this allows the appliance to be converted to its street location (ie in the two player grid).
+	// may decouple location somehow to remove this as a required method....
 	MoveToStreet(width, height, team int8) Appliance
 
 	// // CreateEvents performs all the logic based on an appliances current position and the positions
@@ -100,5 +102,5 @@ type Appliance interface {
 	// All appliances receive all events in case they have behaviour based on things happening to
 	// appliances elsewhere on the board.
 	// Receiving events can also trigger more events, for example incoming damage to an ally might trigger a heal event etc
-	ReceiveEvents(appliances []Appliance, events []Event, turn uint8) (Appliance, []Event)
+	ReceiveEvents(appliances []Appliance, events []Event, turn uint8) ([]Appliance, []Event)
 }

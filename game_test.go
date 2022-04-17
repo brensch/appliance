@@ -17,8 +17,15 @@ var (
 		{
 			Appliances: []smarthome.Appliance{
 				// GoingUp
+				smarthome.HouseState{
+					ObjectState: smarthome.ObjectState{
+						Team:     1,
+						Health:   3,
+						Strength: 3,
+					},
+				},
 				smarthome.Toaster{
-					ApplianceState: smarthome.ApplianceState{
+					ObjectState: smarthome.ObjectState{
 						Team: 1,
 						Location: smarthome.Location{
 							X: 0,
@@ -29,7 +36,7 @@ var (
 					},
 				},
 				smarthome.Toaster{
-					ApplianceState: smarthome.ApplianceState{
+					ObjectState: smarthome.ObjectState{
 						Team: 1,
 						Location: smarthome.Location{
 							X: 1,
@@ -40,8 +47,15 @@ var (
 					},
 				},
 				// GoingDown
+				smarthome.HouseState{
+					ObjectState: smarthome.ObjectState{
+						Team:     -1,
+						Health:   3,
+						Strength: 3,
+					},
+				},
 				smarthome.Sticky{
-					ApplianceState: smarthome.ApplianceState{
+					ObjectState: smarthome.ObjectState{
 						Team: -1,
 						Location: smarthome.Location{
 							X: 0,
@@ -105,9 +119,15 @@ var (
 	houses = [2]smarthome.House{
 		{
 			Appliances: []smarthome.Appliance{
+				smarthome.HouseState{
+					ObjectState: smarthome.ObjectState{
+						Health:   3,
+						Strength: 3,
+					},
+				},
 				// GoingUp
 				smarthome.Toaster{
-					ApplianceState: smarthome.ApplianceState{
+					ObjectState: smarthome.ObjectState{
 						Location: smarthome.Location{
 							X: 0,
 							Y: 2,
@@ -117,7 +137,7 @@ var (
 					},
 				},
 				smarthome.Toaster{
-					ApplianceState: smarthome.ApplianceState{
+					ObjectState: smarthome.ObjectState{
 						Location: smarthome.Location{
 							X: 1,
 							Y: 2,
@@ -127,16 +147,19 @@ var (
 					},
 				},
 			},
-			State: smarthome.HouseState{
-				Health:   3,
-				Strength: 3,
-			},
+			// State: ,
 		},
 		{
 			Appliances: []smarthome.Appliance{
+				smarthome.HouseState{
+					ObjectState: smarthome.ObjectState{
+						Health:   3,
+						Strength: 3,
+					},
+				},
 				// GoingUp
 				smarthome.Toaster{
-					ApplianceState: smarthome.ApplianceState{
+					ObjectState: smarthome.ObjectState{
 						Location: smarthome.Location{
 							X: 0,
 							Y: 2,
@@ -146,7 +169,7 @@ var (
 					},
 				},
 				smarthome.Sticky{
-					ApplianceState: smarthome.ApplianceState{
+					ObjectState: smarthome.ObjectState{
 						Location: smarthome.Location{
 							X: 1,
 							Y: 2,
@@ -155,10 +178,6 @@ var (
 						Health:   3,
 					},
 				},
-			},
-			State: smarthome.HouseState{
-				Health:   3,
-				Strength: 3,
 			},
 		},
 	}

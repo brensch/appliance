@@ -18,12 +18,26 @@ func PrintState(width, height int8, state State) {
 
 	// fmt.Printf("%+v", appliances)
 	board := make([]GameSquare, width*height)
+	var houses [2]HouseState
 
 	for _, appliance := range state.Appliances {
+		house, ok := appliance.(HouseState)
+		if ok {
+			if house.Team == -1 {
+				houses[0] = house
+			} else {
+				houses[1] = house
+			}
+			continue
+		}
+
 		board[GetIndex(width, appliance.State().Location.X, appliance.State().Location.Y)].Appliance = appliance
 	}
 
 	for _, event := range state.Events {
+		if event.Base().Target.Y < 0 || event.Base().Target.Y > 5 {
+			continue
+		}
 		board[GetIndex(width, event.Base().Target.X, event.Base().Target.Y)].Events = append(board[GetIndex(width, event.Base().Target.X, event.Base().Target.Y)].Events, event)
 	}
 
@@ -41,9 +55,9 @@ func PrintState(width, height int8, state State) {
 
 	// when printed, positive in y axis goes down
 	// teamindex 0 == team 1, ie y+ => going down. their house therefore is at the top.
-	fmt.Printf("---------------  house t:%d h:%d  ---------------\n", state.HouseStates[1].Team, state.HouseStates[1].Health)
+	fmt.Printf("---------------  house t:%d h:%d  ---------------\n", houses[1].Team, houses[1].Health)
 	PrintCanvas(canvas)
-	fmt.Printf("---------------  house t:%d h:%d  ---------------\n", state.HouseStates[0].Team, state.HouseStates[0].Health)
+	fmt.Printf("---------------  house t:%d h:%d  ---------------\n", houses[0].Team, houses[0].Health)
 
 }
 

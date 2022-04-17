@@ -3,15 +3,18 @@ package smarthome
 type EventType string
 
 const (
-	EventTypeModifyHealth      = "modify_health"
-	EventTypeModifyHouseHealth = "modify_house_health"
-	EventTypeRelocate          = "relocate"
-	EventTypeApplianceBirth    = "appliance_birth"
-	EventTypeApplianceDeath    = "appliance_death"
-	EventTypeStartGame         = "start_game"
-	EventTypeEndGame           = "end_game"
-	EventTurnStart             = "turn_start"
-	EventTurnEnd               = "turn_end"
+	// EventTypeModifyHouseHealth = "modify_house_health"
+	EventTypeModifyHealth    = "modify_health"
+	EventTypeRelocate        = "relocate"
+	EventTypeApplianceBirth  = "appliance_birth"
+	EventTypeApplianceDeath  = "appliance_death"
+	EventTypeApplianceBought = "appliance_bought"
+	EventTypeApplianceSold   = "appliance_sold"
+	EventTypeStartGame       = "start_game"
+	EventTypeEndGame         = "end_game"
+	EventTurnStart           = "turn_start"
+	EventTurnEnd             = "turn_end"
+	EventTypeHouseDeath      = "house_death"
 
 	EventTypePlayerMovedAppliance  = "player_moved_appliance"
 	EventTypePlayerBoughtAppliance = "player_bought_appliance"
@@ -146,18 +149,43 @@ func (e EndGameEvent) Base() EventBase {
 	return e.EventBase
 }
 
-type ModifyHouseHealthEvent struct {
+// type ModifyHouseHealthEvent struct {
+// 	EventBase
+// 	Value int8
+// 	Team  int8
+// }
+
+// func (e ModifyHouseHealthEvent) Type() EventType {
+// 	return EventTypeModifyHouseHealth
+// }
+
+// // This kind of breaks the pattern since houses don't have a location per se.
+// // Team will be all any event response requires.
+// func (e ModifyHouseHealthEvent) Base() EventBase {
+// 	return e.EventBase
+// }
+
+type BuyApplianceEvent struct {
 	EventBase
-	Value int8
-	Team  int8
+	NewAppliance Appliance
 }
 
-func (e ModifyHouseHealthEvent) Type() EventType {
-	return EventTypeModifyHouseHealth
+func (e BuyApplianceEvent) Type() EventType {
+	return EventTypeApplianceBought
 }
 
-// This kind of breaks the pattern since houses don't have a location per se.
-// Team will be all any event response requires.
-func (e ModifyHouseHealthEvent) Base() EventBase {
+func (e BuyApplianceEvent) Base() EventBase {
+	return e.EventBase
+}
+
+type HouseDeathEvent struct {
+	EventBase
+}
+
+func (e HouseDeathEvent) Type() EventType {
+	return EventTypeHouseDeath
+}
+
+func (e HouseDeathEvent) Base() EventBase {
 	return e.EventBase
 }

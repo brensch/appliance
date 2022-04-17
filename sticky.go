@@ -1,10 +1,10 @@
 package smarthome
 
 type Sticky struct {
-	ApplianceState
+	ObjectState
 }
 
-func (t Sticky) Type() ApplianceType {
+func (t Sticky) Type() ObjectType {
 	return "sticky"
 }
 
@@ -14,7 +14,7 @@ func (t Sticky) MoveToStreet(width, height, team int8) Appliance {
 	return t
 }
 
-func (t Sticky) ReceiveEvents(appliances []Appliance, events []Event, turn uint8) (Appliance, []Event) {
+func (t Sticky) ReceiveEvents(appliances []Appliance, events []Event, turn uint8) ([]Appliance, []Event) {
 
 	var newEvents []Event
 	for _, event := range events {
@@ -62,5 +62,5 @@ func (t Sticky) ReceiveEvents(appliances []Appliance, events []Event, turn uint8
 
 	}
 
-	return t, newEvents
+	return []Appliance{t}, newEvents
 }
