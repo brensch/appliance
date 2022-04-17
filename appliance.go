@@ -5,6 +5,27 @@ package smarthome
 // 0,1 1,1 2,1
 // 0,0 1,0 2,0
 
+type ApplianceType string
+
+type Appliance2 struct {
+	Type     ApplianceType
+	Location Location
+
+	// -1 = going down
+	// 0 = not set (default when viewing your own team)
+	// 1 = going up
+	Team int8
+
+	Health   int8
+	Strength int8
+
+	// TODO
+	Repair int8
+	Model  int8
+
+	// EventReceivers []EventReceiver
+}
+
 type ApplianceState struct {
 	Location Location
 
@@ -20,8 +41,6 @@ type ApplianceState struct {
 	Repair int8
 	Model  int8
 }
-
-type ApplianceType string
 
 type Location struct {
 	X int8

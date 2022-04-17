@@ -12,6 +12,11 @@ const (
 	EventTypeEndGame           = "end_game"
 	EventTurnStart             = "turn_start"
 	EventTurnEnd               = "turn_end"
+
+	EventTypePlayerMovedAppliance  = "player_moved_appliance"
+	EventTypePlayerBoughtAppliance = "player_bought_appliance"
+	EventTypePlayerSoldAppliance   = "player_sold_appliance"
+	EventTypePlayerBoughtItem      = "player_bought_item"
 )
 
 type EventBase struct {
@@ -29,6 +34,7 @@ type EventBase struct {
 
 type Event interface {
 	// json.Marshaler
+	// json.Unmarshaler
 	Type() EventType
 	Base() EventBase
 }
@@ -45,6 +51,11 @@ func (e TurnStartEvent) Type() EventType {
 func (e TurnStartEvent) Base() EventBase {
 	return e.EventBase
 }
+
+// func (e TurnStartEvent) MarshalJSON() ([]byte, error) {
+
+// 	return e.EventBase
+// }
 
 type TurnEndEvent struct {
 	EventBase
