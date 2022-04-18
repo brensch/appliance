@@ -38,7 +38,7 @@ func (t Toaster) ReceiveEvents(appliances []Appliance, events []Event, turn uint
 
 		// if we're dead, return a nil appliance and emit a death event
 		if t.Health <= 0 {
-			return nil, append(events,
+			return nil, append(newEvents,
 				ApplianceDeathEvent{
 					EventBase: event.Base(),
 					Appliance: t,

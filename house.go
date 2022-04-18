@@ -39,7 +39,7 @@ func (h HouseState) ReceiveEvents(appliances []Appliance, events []Event, turn u
 
 		// if we're dead, return a nil appliance and emit a death event
 		if h.Health <= 0 {
-			return nil, append(events,
+			return nil, append(newEvents,
 				HouseDeathEvent{
 					EventBase: event.Base(),
 				},
