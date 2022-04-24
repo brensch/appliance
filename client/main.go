@@ -35,7 +35,8 @@ func main() {
 	gob.Register(smarthome.Toaster{})
 	gob.Register(smarthome.Sticky{})
 
-	snaps := client.Collection("test").Doc("send").Snapshots(context.Background())
+	snaps := client.Collection("test").Doc("sendo").Snapshots(context.Background())
+	// return
 
 	for {
 		snap, err := snaps.Next()

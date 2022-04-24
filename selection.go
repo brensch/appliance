@@ -6,23 +6,14 @@ package smarthome
 func GenerateOptions(turn int) ([]Appliance, []Upgrade) {
 
 	appliances := []Appliance{
-		// GoingUp
 		Toaster{
-			ObjectState: ObjectState{
-				Location: Location{
-					X: 0,
-					Y: 2,
-				},
+			ObjectState: &ObjectState{
 				Strength: 1,
 				Health:   3,
 			},
 		},
 		Toaster{
-			ObjectState: ObjectState{
-				Location: Location{
-					X: 1,
-					Y: 2,
-				},
+			ObjectState: &ObjectState{
 				Strength: 1,
 				Health:   3,
 			},

@@ -73,9 +73,22 @@ func (l Location) MoveToStreet(width, height, team int8) Location {
 	}
 }
 
+// // this make any object that contains an object state implement the state method
+// func (s ObjectState) State() ObjectState {
+// 	return s
+// }
+
+// func (s ObjectState) SetLocation(loc Location) {
+// 	s.Location = loc
+// }
+
 // this make any object that contains an object state implement the state method
-func (s ObjectState) State() ObjectState {
-	return s
+func (s *ObjectState) State() ObjectState {
+	return *s
+}
+
+func (s *ObjectState) SetLocation(loc Location) {
+	s.Location = loc
 }
 
 // const (
@@ -85,6 +98,9 @@ func (s ObjectState) State() ObjectState {
 
 type Appliance interface {
 	State() ObjectState
+	SetLocation(loc Location)
+
+	// Type needs to just return the string of the type of the appliance
 	Type() ObjectType
 
 	// this allows the appliance to be converted to its street location (ie in the two player grid).

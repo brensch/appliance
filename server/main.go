@@ -6,6 +6,8 @@ import (
 	"encoding/gob"
 	"fmt"
 	"log"
+	"math/rand"
+	"time"
 
 	"github.com/brensch/smarthome"
 
@@ -32,25 +34,30 @@ func main() {
 	}
 	defer client.Close()
 
+	rand.Seed(time.Now().UnixMilli())
+
+	stickyHealth := rand.Intn(100)
+	fmt.Println(stickyHealth)
+
 	toaster := smarthome.Toaster{
-		ObjectState: smarthome.ObjectState{
+		ObjectState: &smarthome.ObjectState{
 			Team: 1,
 			Location: smarthome.Location{
 				X: 0,
 				Y: 2,
 			},
 			Strength: 1,
-			Health:   3,
+			Health:   1,
 		},
 	}
 	sticky := smarthome.Sticky{
-		ObjectState: smarthome.ObjectState{
+		ObjectState: &smarthome.ObjectState{
 			Location: smarthome.Location{
 				X: 1,
 				Y: 2,
 			},
 			Strength: 1,
-			Health:   69,
+			Health:   int8(stickyHealth),
 		},
 	}
 	appliances := []smarthome.Appliance{toaster, sticky, toaster}
@@ -67,7 +74,7 @@ func main() {
 	}
 
 	fmt.Println("setting")
-	_, err = client.Collection("test").Doc("send").Set(context.Background(), map[string][]byte{
+	_, err = client.Collection("test").Doc("sendo").Set(context.Background(), map[string][]byte{
 		"yeet": buf.Bytes(),
 	})
 	if err != nil {

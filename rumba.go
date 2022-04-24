@@ -3,7 +3,7 @@ package smarthome
 // want him to path towards home
 // currently just a copy of toaster
 type Rumba struct {
-	ObjectState
+	*ObjectState
 }
 
 func (t Rumba) Type() ObjectType {

@@ -11,14 +11,14 @@ func TestApplySelection(t *testing.T) {
 
 	appliances := []smarthome.Appliance{
 		smarthome.HouseState{
-			ObjectState: smarthome.ObjectState{
+			ObjectState: &smarthome.ObjectState{
 				Health:   3,
 				Strength: 3,
 			},
 		},
 		// GoingUp
 		smarthome.Toaster{
-			ObjectState: smarthome.ObjectState{
+			ObjectState: &smarthome.ObjectState{
 				Location: smarthome.Location{
 					X: 0,
 					Y: 2,
@@ -28,7 +28,7 @@ func TestApplySelection(t *testing.T) {
 			},
 		},
 		smarthome.Sticky{
-			ObjectState: smarthome.ObjectState{
+			ObjectState: &smarthome.ObjectState{
 				Location: smarthome.Location{
 					X: 1,
 					Y: 2,
@@ -43,7 +43,7 @@ func TestApplySelection(t *testing.T) {
 		Objects: appliances,
 		PlayerEvent: smarthome.BuyApplianceEvent{
 			NewAppliance: smarthome.Sticky{
-				ObjectState: smarthome.ObjectState{
+				ObjectState: &smarthome.ObjectState{
 					Location: smarthome.Location{
 						X: 2,
 						Y: 2,

@@ -7,7 +7,7 @@ type House struct {
 // HouseState implements Appliance since it can be responsible for events, and receive damage
 type HouseState struct {
 	// May rethink the appliancestate interface
-	ObjectState
+	*ObjectState
 	// Health   int8
 	// Strength int8
 	// Team     int8

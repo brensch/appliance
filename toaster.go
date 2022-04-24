@@ -1,7 +1,7 @@
 package smarthome
 
 type Toaster struct {
-	ObjectState
+	*ObjectState
 	// The direction that Ability operates
 	// Pattern [8]bool
 }

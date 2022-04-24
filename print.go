@@ -55,9 +55,9 @@ func PrintState(width, height int8, state State) {
 
 	// when printed, positive in y axis goes down
 	// teamindex 0 == team 1, ie y+ => going down. their house therefore is at the top.
-	fmt.Printf("---------------  house t:%d h:%d  ---------------\n", houses[1].Team, houses[1].Health)
+	// fmt.Printf("---------------  house t:%d h:%d  ---------------\n", houses[1].Team, houses[1].Health)
 	PrintCanvas(canvas)
-	fmt.Printf("---------------  house t:%d h:%d  ---------------\n", houses[0].Team, houses[0].Health)
+	// fmt.Printf("---------------  house t:%d h:%d  ---------------\n", houses[0].Team, houses[0].Health)
 
 }
 

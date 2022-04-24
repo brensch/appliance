@@ -1,7 +1,7 @@
 package smarthome
 
 type Sticky struct {
-	ObjectState
+	*ObjectState
 }
 
 func (t Sticky) Type() ObjectType {
