@@ -6,17 +6,33 @@ package smarthome
 func GenerateOptions(turn int) ([]Appliance, []Upgrade) {
 
 	appliances := []Appliance{
-		Toaster{
-			ObjectState: &ObjectState{
-				Strength: 1,
-				Health:   3,
-			},
+		{
+			Type:     ApplianceTypeToaster,
+			Strength: 1,
+			Health:   3,
 		},
-		Toaster{
-			ObjectState: &ObjectState{
-				Strength: 1,
-				Health:   3,
-			},
+		{
+			Type:     ApplianceTypeToaster,
+			Strength: 2,
+			Health:   3,
+		},
+	}
+
+	return appliances, nil
+}
+
+func GenerateOptions2(turn int) ([]Appliance, []Upgrade) {
+
+	appliances := []Appliance{
+		{
+			Type:     ApplianceTypeToaster,
+			Health:   1,
+			Strength: 1,
+		},
+		{
+			Type:     ApplianceTypeToaster,
+			Health:   1,
+			Strength: 1,
 		},
 	}
 
@@ -50,9 +66,12 @@ func ApplySelection(selection Selection) []Appliance {
 
 	for len(allEvents) > 0 {
 		for _, appliance := range allAppliances {
-			newAppliances, newEvents := appliance.ReceiveEvents(allAppliances, allEvents, 0)
-			allNewEvents = append(allNewEvents, newEvents...)
-			allNewAppliances = append(allNewAppliances, newAppliances...)
+			for _, event := range allEvents {
+
+				newAppliances, newEvents := appliance.ReceiveEvent(event, allAppliances, 0)
+				allNewEvents = append(allNewEvents, newEvents...)
+				allNewAppliances = append(allNewAppliances, newAppliances...)
+			}
 		}
 		allEvents = allNewEvents
 		allAppliances = allNewAppliances

@@ -19,10 +19,10 @@ func main() {
 
 	fmt.Println("appliances available for selection")
 
-	applianceOptions, upgradeOptions := smarthome.GenerateOptions(0)
+	applianceOptions, upgradeOptions := smarthome.GenerateOptions2(0)
 
 	for i, applianceOption := range applianceOptions {
-		fmt.Println(i, applianceOption.Type())
+		fmt.Println(i, applianceOption.Type)
 	}
 
 	_ = upgradeOptions
@@ -80,20 +80,24 @@ func main() {
 	}
 
 	selectedAppliance := applianceOptions[selectionIndex]
+	_ = selectedAppliance
 
-	selectedAppliance.SetLocation(smarthome.Location{
-		X: int8(x),
-		Y: int8(y),
-	})
+	selectedAppliance.Location.X = int8(x)
+	selectedAppliance.Location.Y = int8(y)
 
-	fmt.Println(selectedAppliance.State().Location)
+	// selectedAppliance.SetLocation(smarthome.Location{
+	// 	X: int8(x),
+	// 	Y: int8(y),
+	// })
+
+	// fmt.Println(selectedAppliance.State().Location)
 
 	appliances = append(appliances, selectedAppliance)
-	fmt.Println(appliances)
+	// fmt.Println(appliances)
 
-	state := smarthome.State{
+	state := smarthome.State2{
 		Appliances: appliances,
 	}
-	smarthome.PrintState(3, 3, state)
+	smarthome.PrintState2(3, 3, state)
 
 }

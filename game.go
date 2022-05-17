@@ -13,6 +13,12 @@ type State struct {
 	Events []Event
 }
 
+type State2 struct {
+	Appliances []Appliance
+	// HouseStates [2]HouseState
+	Events []Event
+}
+
 func GetFirstState(houses [2]House) State {
 
 	var s State
@@ -57,34 +63,30 @@ func TurnStartEvents(appliances []Appliance, turnNumber uint8) []Event {
 
 	var allEvents []Event
 	for _, appliance := range appliances {
-		event := TurnStartEvent{
-			EventBase: EventBase{
-				Target: appliance.State().Location,
-			},
-			Turn: turnNumber,
+		event := Event{
+			Type:    EventTypeTurnStart,
+			Targets: []Location{appliance.Location},
+			Turn:    turnNumber,
 		}
 		allEvents = append(allEvents, event)
 	}
 
 	return allEvents
-
 }
 
 func TurnEndEvents(appliances []Appliance, turnNumber uint8) []Event {
 
 	var allEvents []Event
 	for _, appliance := range appliances {
-		event := TurnEndEvent{
-			EventBase: EventBase{
-				Target: appliance.State().Location,
-			},
-			Turn: turnNumber,
+		event := Event{
+			Type:    EventTypeTurnEnd,
+			Targets: []Location{appliance.Location},
+			Turn:    turnNumber,
 		}
 		allEvents = append(allEvents, event)
 	}
 
 	return allEvents
-
 }
 
 func LoopUntilNoEventsRemaining(startingState State, turnNumber uint8) []State {
@@ -109,9 +111,10 @@ func LoopUntilNoEventsRemaining(startingState State, turnNumber uint8) []State {
 
 		// send each appliance all the previous events and see how they react
 		for _, appliance := range prevState.Appliances {
-			nextAppliances, followUpEvents := appliance.ReceiveEvents(prevState.Appliances, prevState.Events, turnNumber)
-			nextState.Events = append(nextState.Events, followUpEvents...)
-			if nextAppliances != nil {
+			for _, event := range prevState.Events {
+
+				nextAppliances, followUpEvents := appliance.ReceiveEvent(event, prevState.Appliances, turnNumber)
+				nextState.Events = append(nextState.Events, followUpEvents...)
 				nextState.Appliances = append(nextState.Appliances, nextAppliances...)
 			}
 
@@ -167,21 +170,10 @@ func gameResult(state State) int8 {
 		return ResultDraw
 	}
 
-	// if state.HouseStates[0].Health <= 0 && state.HouseStates[1].Health <= 0 {
-	// 	return ResultDraw
-	// }
-
-	// for _, house := range state.HouseStates {
-	// 	if state.HouseStates[0].Health <= 0 {
-	// 		// return the opposite team to the one whos house has 0 health
-	// 		return -house.Team
-	// 	}
-	// }
-
 	// Count the survivors from each type
 	var score int8
 	for _, appliance := range state.Appliances {
-		score += appliance.State().Team
+		score += appliance.Team
 	}
 
 	if score < 0 {
